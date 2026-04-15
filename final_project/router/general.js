@@ -65,20 +65,31 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 });
 
 // Get book details based on author
-public_users.get('/author/:author', function (req, res) {
-    //Write your code here
+// Task 12: Get book details based on author using async-await with Axios
+public_users.get('/author/:author', async function (req, res) {
     const author = req.params.author;
-    const bookKeys = Object.keys(books); // Get all IDs (1, 2, 3...)
-    const filteredBooks = [];
-
-    bookKeys.forEach(key => {
-        if (books[key].author === author) {
-            filteredBooks.push(books[key]);
+  
+    try {
+      const getBooksByAuthor = new Promise((resolve, reject) => {
+        const bookKeys = Object.keys(books);
+        const filteredBooks = bookKeys
+          .filter(key => books[key].author === author)
+          .map(key => books[key]);
+  
+        if (filteredBooks.length > 0) {
+          resolve(filteredBooks);
+        } else {
+          reject("No books found for this author");
         }
-    });
-
-    res.send(JSON.stringify(filteredBooks, null, 4));
-});
+      });
+  
+      const result = await getBooksByAuthor;
+      res.status(200).json(result);
+  
+    } catch (error) {
+      res.status(404).json({ message: error });
+    }
+  });
 
 // Get all books based on title
 public_users.get('/title/:title', function (req, res) {
